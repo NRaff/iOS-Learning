@@ -7,7 +7,7 @@
 //
 
 import UIKit
-
+import CoreLocation
 //MARK: - Class Definition
 class WeatherViewController: UIViewController {
 
@@ -17,12 +17,19 @@ class WeatherViewController: UIViewController {
     @IBOutlet weak var searchTextField: UITextField!
     
     var weatherManager = WeatherManager()
+    let locationManager = CLLocationManager()
     
+    @IBAction func ccurrentLocationBtn(_ sender: UIButton) {
+        locationManager.requestLocation()
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        locationManager.requestWhenInUseAuthorization()
+        
         searchTextField.delegate = self
         weatherManager.delegate = self
+        locationManager.delegate = self
     }
 
 }
@@ -74,3 +81,24 @@ extension WeatherViewController: WeatherManagerDelegate {
     }
 }
 
+//MARK: - LocationManagerDelegate
+extension WeatherViewController: CLLocationManagerDelegate {
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        if let safe_location = locations.last {
+            weatherManager.fetchWeather(safe_location)
+        }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print("Location manager failed: \(error)")
+    }
+    
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        if manager.authorizationStatus == .authorizedAlways || manager.authorizationStatus == .authorizedWhenInUse {
+            manager.requestLocation()
+        } else {
+            locationManager.requestWhenInUseAuthorization()
+        }
+    }
+    
+}
