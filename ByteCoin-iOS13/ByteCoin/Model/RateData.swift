@@ -8,8 +8,8 @@
 
 import Foundation
 
-struct Rate: Encodable {
-    let time: Date
+struct RateData: Codable {
+    let time: String
     let asset_id_base: String
     let asset_id_quote: String
     let rate: Double
